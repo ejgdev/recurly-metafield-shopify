@@ -94,6 +94,7 @@ const addAccountTokenToMetafield = async (accountToken, customerID) => {
 
   // eslint-disable-next-line no-console
   console.log('> setCustomerMetafield', setCustomerMetafield.metafield);
+  return setCustomerMetafield.metafield;
 };
 
 /**
@@ -102,6 +103,7 @@ const addAccountTokenToMetafield = async (accountToken, customerID) => {
  */
 const population = async (req, res) => {
   if (req.body.code === INTERNAL_KEY) {
+    const finalResult = [];
     // eslint-disable-next-line no-console
     console.log('---*--- Starting Server ---*---');
 
@@ -131,13 +133,20 @@ const population = async (req, res) => {
       const getSearchUrl = `${findCustomerUrl}?query=email:${email}`;
 
       // eslint-disable-next-line no-await-in-loop
-      const getCustomerData = await fetch(getSearchUrl).then((res) => res.json());
+      const getCustomerData = await fetch(getSearchUrl).then((res2) => res2.json());
       // eslint-disable-next-line no-console
       console.log('> Adding metadata to: ', email);
-
-      // eslint-disable-next-line no-await-in-loop
-      await addAccountTokenToMetafield(hostedLoginToken, getCustomerData.customers[0].id);
+      if (getCustomerData.customers && getCustomerData.customers[0] && getCustomerData.customers[0].id) {
+        // eslint-disable-next-line no-await-in-loop
+        const data = await addAccountTokenToMetafield(hostedLoginToken, getCustomerData.customers[0].id);
+        finalResult.push(data);
+      } else {
+        console.log('> Warning - active membership related to this email is not in Shopify,');
+      }
     }
+    res.render('result.ejs', {
+      list: finalResult,
+    });
   } else {
     res.redirect('/');
   }
