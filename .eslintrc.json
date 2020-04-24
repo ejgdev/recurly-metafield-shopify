@@ -1,0 +1,3 @@
+{
+  "extends": "@ejg.dev/eslint-config-ejgdev/node"
+}
