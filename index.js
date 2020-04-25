@@ -106,9 +106,11 @@ const delay = (ms) => new Promise((res) => setTimeout(res, ms));
  */
 const population = async (req, res) => {
   if (req.body.code === INTERNAL_KEY) {
+    let updatesCounter = 0;
     const finalResult = {};
     // eslint-disable-next-line no-console
-    console.log('---*--- Starting Server ---*---');
+    console.log('---*--- Starting Population ---*---');
+    res.write('Starting Population');
 
     // Get the Recurly Customers with active membership
     const recurlyInstance = new RecurlyAPI();
@@ -119,7 +121,7 @@ const population = async (req, res) => {
     console.log('Active Subscription From Recurly API Received', recurlySubscriptionList.length);
     // eslint-disable-next-line no-console
     console.log('Account List From Recurly API Received', recurlyAccountList.length);
-
+    res.write(`Total Active Subscription ${recurlySubscriptionList.length}`);
 
     // eslint-disable-next-line no-restricted-syntax
     for (const recurlySubscription of recurlySubscriptionList) {
@@ -142,12 +144,15 @@ const population = async (req, res) => {
 
       // eslint-disable-next-line no-console
       console.log('> Adding metadata to: ', email);
-      if (getCustomerData.customers && getCustomerData.customers[0].id) {
+      if (getCustomerData.customers && getCustomerData.customers[0] && getCustomerData.customers[0].id) {
         // eslint-disable-next-line no-await-in-loop
         await delay(1500);
         // eslint-disable-next-line no-await-in-loop
         const data = await addAccountTokenToMetafield(hostedLoginToken, getCustomerData.customers[0].id);
         finalResult[email] = data;
+        updatesCounter += 1;
+        console.log(`> ${updatesCounter} Customers updated of ${recurlySubscriptionList.length}`);
+
         res.write(JSON.stringify(finalResult));
       } else {
         console.log('> Warning - something wrong happened, mostly error: Exceeded 2 calls per second for api client...');
