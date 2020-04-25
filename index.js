@@ -98,6 +98,8 @@ const addAccountTokenToMetafield = async (accountToken, customerID) => {
   return setCustomerMetafield.metafield;
 };
 
+const delay = (ms) => new Promise((res) => setTimeout(res, ms));
+
 /**
  * @name population
  * Main Function that Populates
@@ -134,24 +136,28 @@ const population = async (req, res) => {
       const getSearchUrl = `${findCustomerUrl}?query=email:${email}`;
 
       // eslint-disable-next-line no-await-in-loop
+      await delay(1500);
+      // eslint-disable-next-line no-await-in-loop
       const getCustomerData = await fetch(getSearchUrl).then((res2) => res2.json());
-      console.log('CUSTOMER DATA' , getCustomerData);
 
       // eslint-disable-next-line no-console
       console.log('> Adding metadata to: ', email);
-      if (getCustomerData.customers && getCustomerData.customers[0] && getCustomerData.customers[0].id) {
+      if (getCustomerData.customers && getCustomerData.customers[0].id) {
+        // eslint-disable-next-line no-await-in-loop
+        await delay(1500);
         // eslint-disable-next-line no-await-in-loop
         const data = await addAccountTokenToMetafield(hostedLoginToken, getCustomerData.customers[0].id);
         finalResult.push(data);
+        res.render('result.ejs', {
+          list: finalResult,
+        });
       } else {
-        console.log('> Warning - active membership related to this email is not in Shopify,');
+        console.log('> Warning - something wrong happened, mostly error: Exceeded 2 calls per second for api client...');
         console.log(getCustomerData);
-        console.log('------------------------------------------------------------------------');
+        console.log('---------- END WARNING ----------');
       }
     }
-    res.render('result.ejs', {
-      list: finalResult,
-    });
+
   } else {
     res.redirect('/');
   }
