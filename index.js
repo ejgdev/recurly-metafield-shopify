@@ -107,7 +107,9 @@ const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 const population = async (req, res) => {
   if (req.body.code === INTERNAL_KEY) {
     let updatesCounter = 0;
-    const finalResult = {};
+    const emailFailed = [];
+    const finalResult = {
+    };
     // eslint-disable-next-line no-console
     console.log('---*--- Starting Population ---*---');
     res.write('Starting Population');
@@ -138,7 +140,7 @@ const population = async (req, res) => {
       const getSearchUrl = `${findCustomerUrl}?query=email:${email}`;
 
       // eslint-disable-next-line no-await-in-loop
-      await delay(1500);
+      await delay(1001);
       // eslint-disable-next-line no-await-in-loop
       const getCustomerData = await fetch(getSearchUrl).then((res2) => res2.json());
 
@@ -146,7 +148,7 @@ const population = async (req, res) => {
       console.log('> Adding metadata to: ', email);
       if (getCustomerData.customers && getCustomerData.customers[0] && getCustomerData.customers[0].id) {
         // eslint-disable-next-line no-await-in-loop
-        await delay(1500);
+        await delay(1001);
         // eslint-disable-next-line no-await-in-loop
         const data = await addAccountTokenToMetafield(hostedLoginToken, getCustomerData.customers[0].id);
         finalResult[email] = data;
@@ -155,8 +157,10 @@ const population = async (req, res) => {
 
         res.write(JSON.stringify(finalResult));
       } else {
+        emailFailed.push(email);
         console.log('> Warning - something wrong happened, mostly error: Exceeded 2 calls per second for api client...');
         console.log(getCustomerData);
+        console.log(emailFailed);
         console.log('---------- END WARNING ----------');
       }
     }
