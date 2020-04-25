@@ -5,6 +5,7 @@ const {
   API_KEY,
   API_PASS,
   SHOP_URL,
+  API_URL,
   RECURLY_API,
   INTERNAL_KEY,
 } = process.env;
@@ -72,7 +73,7 @@ class RecurlyAPI {
  * @param {*} customerID
  */
 const addAccountTokenToMetafield = async (accountToken, customerID) => {
-  const urlAccountTokenized = `https://holstee.recurly.com/account/${accountToken}`;
+  const urlAccountTokenized = `https://${API_URL}/account/${accountToken}`;
 
   const metafieldData = {
     metafield: {
@@ -134,6 +135,8 @@ const population = async (req, res) => {
 
       // eslint-disable-next-line no-await-in-loop
       const getCustomerData = await fetch(getSearchUrl).then((res2) => res2.json());
+      console.log('CUSTOMER DATA' , getCustomerData);
+
       // eslint-disable-next-line no-console
       console.log('> Adding metadata to: ', email);
       if (getCustomerData.customers && getCustomerData.customers[0] && getCustomerData.customers[0].id) {
@@ -142,6 +145,8 @@ const population = async (req, res) => {
         finalResult.push(data);
       } else {
         console.log('> Warning - active membership related to this email is not in Shopify,');
+        console.log(getCustomerData);
+        console.log('------------------------------------------------------------------------');
       }
     }
     res.render('result.ejs', {
