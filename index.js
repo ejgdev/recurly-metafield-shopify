@@ -148,16 +148,16 @@ const population = async (req, res) => {
         // eslint-disable-next-line no-await-in-loop
         const data = await addAccountTokenToMetafield(hostedLoginToken, getCustomerData.customers[0].id);
         finalResult.push(data);
-        res.render('result.ejs', {
-          list: finalResult,
-        });
+        res.write(finalResult);
       } else {
         console.log('> Warning - something wrong happened, mostly error: Exceeded 2 calls per second for api client...');
         console.log(getCustomerData);
         console.log('---------- END WARNING ----------');
       }
     }
-
+    res.render('result.ejs', {
+      list: finalResult,
+    });
   } else {
     res.redirect('/');
   }
