@@ -106,7 +106,7 @@ const delay = (ms) => new Promise((res) => setTimeout(res, ms));
  */
 const population = async (req, res) => {
   if (req.body.code === INTERNAL_KEY) {
-    const finalResult = [];
+    const finalResult = {};
     // eslint-disable-next-line no-console
     console.log('---*--- Starting Server ---*---');
 
@@ -147,8 +147,8 @@ const population = async (req, res) => {
         await delay(1500);
         // eslint-disable-next-line no-await-in-loop
         const data = await addAccountTokenToMetafield(hostedLoginToken, getCustomerData.customers[0].id);
-        finalResult.push(data);
-        res.write(finalResult);
+        finalResult[email] = data;
+        res.write(JSON.stringify(finalResult));
       } else {
         console.log('> Warning - something wrong happened, mostly error: Exceeded 2 calls per second for api client...');
         console.log(getCustomerData);
