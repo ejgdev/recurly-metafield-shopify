@@ -105,6 +105,7 @@ const delay = (ms) => new Promise((res) => setTimeout(res, ms));
  * Main Function that Populates
  */
 const population = async (req, res) => {
+  console.log('-->LOGGER : population -> req', req.body);
   if (req.body.code === INTERNAL_KEY) {
     let updatesCounter = 0;
     const emailFailed = [];
@@ -164,11 +165,9 @@ const population = async (req, res) => {
         console.log('---------- END WARNING ----------');
       }
     }
-    res.render('result.ejs', {
-      list: finalResult,
-    });
+    res.status(200).send(finalResult);
   } else {
-    res.redirect('/');
+    res.status(200).send('WRONG KEY');
   }
 };
 
